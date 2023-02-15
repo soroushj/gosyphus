@@ -50,6 +50,9 @@ var defaultGosyphus = &Gosyphus{
 // Do calls f and retries until it succeeds. The wait time between retries is a random
 // value between 0 and d, where d starts at 1 second and doubles every retry, but is
 // capped at 30 seconds.
+//
+// If the provided context expires before f succeeds, Do returns the context's error.
+// If the provided context has already expired when Do is called, Do will not call f.
 func Do(ctx context.Context, f func() error) error {
 	return defaultGosyphus.Do(ctx, f)
 }
@@ -57,11 +60,18 @@ func Do(ctx context.Context, f func() error) error {
 // Dos calls f and retries until it succeeds or returns an error for which shouldRetry
 // returns false. The wait time between retries is a random value between 0 and d, where
 // d starts at 1 second and doubles every retry, but is capped at 30 seconds.
+//
+// If shouldRetry returns false for an error returned by f, Dos returns that error.
+// If the provided context expires before f succeeds, Dos returns the context's error.
+// If the provided context has already expired when Dos is called, Dos will not call f.
 func Dos(ctx context.Context, f func() error, shouldRetry func(error) bool) error {
 	return defaultGosyphus.Dos(ctx, f, shouldRetry)
 }
 
 // Do calls f and retries until it succeeds.
+//
+// If the provided context expires before f succeeds, Do returns the context's error.
+// If the provided context has already expired when Do is called, Do will not call f.
 func (g *Gosyphus) Do(ctx context.Context, f func() error) error {
 	alwaysRetry := func(error) bool { return true }
 	return g.Dos(ctx, f, alwaysRetry)
@@ -69,6 +79,10 @@ func (g *Gosyphus) Do(ctx context.Context, f func() error) error {
 
 // Dos calls f and retries until it succeeds or returns an error for which shouldRetry
 // returns false.
+//
+// If shouldRetry returns false for an error returned by f, Dos returns that error.
+// If the provided context expires before f succeeds, Dos returns the context's error.
+// If the provided context has already expired when Dos is called, Dos will not call f.
 func (g *Gosyphus) Dos(ctx context.Context, f func() error, shouldRetry func(error) bool) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -94,7 +108,7 @@ func (g *Gosyphus) Dos(ctx context.Context, f func() error, shouldRetry func(err
 				return err
 			}
 			d *= 2
-			// d <= 0 checks for an overflow, but it should never happen in practice.
+			// d <= 0 checks for an overflow, but it should never happen in practice
 			if d > g.max || d <= 0 {
 				d = g.max
 			}
