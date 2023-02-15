@@ -83,7 +83,9 @@ func (g *Gosyphus) Dos(ctx context.Context, f func() error, shouldRetry func(err
 	for {
 		select {
 		case <-ctx.Done():
-			t.Stop()
+			if !t.Stop() {
+				<-t.C
+			}
 			return ctx.Err()
 		case <-t.C:
 			if err := f(); err == nil {
