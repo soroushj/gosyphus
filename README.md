@@ -8,3 +8,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/soroushj/gosyphus)](https://goreportcard.com/report/github.com/soroushj/gosyphus)
 
 See [docs and examples on pkg.go.dev](https://pkg.go.dev/github.com/soroushj/gosyphus).
+
+*The Gosyphus image is created by [Fouf](https://linktr.ee/foufia); the Go Gopher by [Renee French](http://reneefrench.blogspot.com/); both [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) licensed.*
