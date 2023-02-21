@@ -23,6 +23,8 @@ import (
 )
 
 // Gosyphus implements jittered capped exponential backoff.
+//
+// A Gosyphus must be created with [New].
 type Gosyphus struct {
 	initial time.Duration
 	max     time.Duration
@@ -31,10 +33,11 @@ type Gosyphus struct {
 // New returns a new Gosyphus. The wait time between retries is a random value between
 // 0 and d, where d starts at initial and doubles every retry, but is capped at max.
 //
-// If initial < 1, it will be set to 1. If max < initial, max will be set to initial.
+// If initial <= 0, it will be set to 1 nanosecond.
+// If max < initial, max will be set to initial.
 func New(initial, max time.Duration) *Gosyphus {
-	if initial < 1 {
-		initial = 1
+	if initial <= 0 {
+		initial = 1 * time.Nanosecond
 	}
 	if max < initial {
 		max = initial
@@ -117,7 +120,6 @@ func (g *Gosyphus) Dos(ctx context.Context, f func() error, shouldRetry func(err
 	}
 }
 
-// jitter returns a random value between 0 and d.
 func jitter(d time.Duration) time.Duration {
 	return time.Duration(rand.Int63n(int64(d)))
 }
